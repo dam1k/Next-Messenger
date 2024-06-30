@@ -13,7 +13,7 @@ type FormData = z.infer<typeof addFriendValidator>;
 const AddFriendButton = () => {
   const [showSuccessState, setShowSuccessState] = useState<boolean>(false)
 
-  const {register} = useForm<FormData>({
+  const {register, setError, handleSubmit} = useForm<FormData>({
     resolver: zodResolver(addFriendValidator)
   })
 //   const {
@@ -30,25 +30,30 @@ const AddFriendButton = () => {
         const validatedEmail = addFriendValidator.parse({email});
 
         await axios.post("/api/friends/add", {
-            email: validatedEmail
+            email: validatedEmail,
         })
         setShowSuccessState(true)
     } catch(error) {
         if(error instanceof z.ZodError) {
+          setError("email", {message: error.message});
+          return
         } 
         
         if(error instanceof AxiosError) {
-
+          setError("email", {message: error.response?.data});
+          return
         }
+
+        setError("email", {message: "Something went wrong"}); 
     }
   }
 
   const onSubmit = (data: FormData) => {
-    // addFriend(data.email)
+    addFriend(data.email)
   }
 
   return (
-    <form className='max-w-sm'>
+    <form onSubmit={handleSubmit(onSubmit)} className='max-w-sm'>
       <label
         htmlFor='email'
         className='block text-sm font-medium leading-6 text-gray-900'>
