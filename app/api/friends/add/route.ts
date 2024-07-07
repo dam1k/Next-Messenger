@@ -50,11 +50,8 @@ export async function POST(req: Request) {
 
         //valid request
 
-        await db.sadd(`user:${idToAdd}:incoming_friend_request`, session.user.id);
-
-  
-
-
+        await db.sadd(`user:${idToAdd}:incoming_friend_requests`, session.user.id);
+        return new Response("All good", {status: 200})
     } catch(error) {
 
     }
