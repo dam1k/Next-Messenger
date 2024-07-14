@@ -34,6 +34,7 @@ export async function POST(req: Request) {
         ));
 
         if(isAlreadyAdded) {
+            console.log("You've already sent a friend request")
             return new Response("Friend request already sent", {status: 400})
         }
 
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
         )) 
 
         if(isAlreadyFriends) {
+            console.log("You're already friends")
             return new Response("You're already friends", {status: 400})
         }
 

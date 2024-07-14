@@ -15,8 +15,6 @@ const FriendRequests:FC<FriendRequestsProps> = ({incomingFriendRequests, session
     const [friendRequests, setFriendRequests] = useState<IncomingFriendRequest[]>
     (incomingFriendRequests);
 
-    // console.log(friendRequests);
-
     async function denyFriend(senderId:string) {
         await axios.post("/api/friends/deny", {id: senderId});
 
@@ -28,7 +26,7 @@ const FriendRequests:FC<FriendRequestsProps> = ({incomingFriendRequests, session
     }
 
     async function acceptFriend(senderId:string) {
-        await axios.post("/api/friends/add", {id: senderId});
+        await axios.post("/api/friends/accept", {id: senderId});
 
         setFriendRequests((prev) => {
             return prev.filter((friendRequest) =>  friendRequest.senderId !== senderId)
@@ -40,7 +38,7 @@ const FriendRequests:FC<FriendRequestsProps> = ({incomingFriendRequests, session
     return (
         <>
           {friendRequests.length === 0 ? (
-                <p className='text-sm text-zinc-500'>Nothing to show here...</p>
+                <p className='text-sm text-zinc-500'> Nothing to show here...</p>
             ) : (
                 friendRequests.map((request) => (
                 <div key={request.senderId} className='flex gap-4 items-center'>
