@@ -1,12 +1,27 @@
 import React from 'react'
 import Link from "next/link"
 import {Icons} from "@/components/Icons"
+import SidebarChatList from '@/components/SidebarChatList'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { getFriendsByUserId } from '@/helpers/getFriendsByUserId'
+import { notFound } from 'next/navigation'
 
 interface LayoutProps {
     children: React.ReactNode
 }
 
 const Layout = async ({children}:LayoutProps) => {
+  const session = await getServerSession(authOptions);
+
+  if(!session) {
+    notFound();
+  }
+
+  const userFriends = await getFriendsByUserId(session.user.id);
+
+  console.log(userFriends);
+
   return (
     <div className='w-full flex h-screen'>
     {/* <div className='md:hidden'>
@@ -31,9 +46,9 @@ const Layout = async ({children}:LayoutProps) => {
 
       <nav className='flex flex-1 flex-col'>
         <ul role='list' className='flex flex-1 flex-col gap-y-7'>
-          {/* <li>
-            <SidebarChatList sessionId={session.user.id} friends={friends} />
-          </li> */}
+          <li>
+            <SidebarChatList sessionId={session.user.id} friends={userFriends} />
+          </li>
           <li>
             <div className='text-xs font-semibold leading-6 text-gray-400'>
               Overview
