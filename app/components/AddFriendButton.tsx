@@ -13,7 +13,7 @@ type FormData = z.infer<typeof addFriendValidator>;
 const AddFriendButton = () => {
   const [showSuccessState, setShowSuccessState] = useState<boolean>(false)
 
-  const {register, setError, handleSubmit} = useForm<FormData>({
+  const {register, setError, handleSubmit, formState: {errors}} = useForm<FormData>({
     resolver: zodResolver(addFriendValidator)
   })
 //   const {
@@ -69,10 +69,10 @@ const AddFriendButton = () => {
         />
         <Button>Add</Button>
       </div>
-      {/* <p className='mt-1 text-sm text-red-600'>{errors.email?.message}</p> */}
-      {/* {showSuccessState ? ( */}
+      <p className='mt-1 text-sm text-red-600'>{errors.email?.message}</p>
+      {showSuccessState ? (
         <p className='mt-1 text-sm text-green-600'>Friend request sent!</p>
-      {/* ) : null} */}
+      ) : null}
     </form>
   )
 }

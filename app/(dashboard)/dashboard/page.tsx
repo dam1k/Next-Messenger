@@ -9,6 +9,7 @@ interface pageProps {
 
 const Dashboard:FC<pageProps> = async  ({}) => {
   const session = await getServerSession(authOptions);
+  
   return (
     <div>
         <Button>
