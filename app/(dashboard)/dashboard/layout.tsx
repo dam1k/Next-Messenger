@@ -2,9 +2,11 @@ import React from 'react'
 import Link from "next/link"
 import {Icons} from "@/components/Icons"
 import SidebarChatList from '@/components/SidebarChatList'
+import FriendRequestSidebarOptions from '@/components/FriendRequestSidebarOptions'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { getFriendsByUserId } from '@/helpers/getFriendsByUserId'
+import { fetchRedis } from '@/helpers/redis'
 import { notFound } from 'next/navigation'
 
 interface LayoutProps {
@@ -14,13 +16,25 @@ interface LayoutProps {
 const Layout = async ({children}:LayoutProps) => {
   const session = await getServerSession(authOptions);
 
+  const sidebarOptions: any[] = [
+    {
+      id: 1,
+      name: 'Add friend',
+      href: '/dashboard/add',
+      Icon: 'UserPlus',
+    },
+  ]
+  
+
   if(!session) {
     notFound();
   }
 
   const userFriends = await getFriendsByUserId(session.user.id);
 
-  console.log(userFriends);
+  const unseenRequestCount = (await fetchRedis("smembers", `user:${session.user.id}:incoming_friend_requests`) as any).length
+
+  // console.log(userFriends);
 
   return (
     <div className='w-full flex h-screen'>
@@ -55,7 +69,8 @@ const Layout = async ({children}:LayoutProps) => {
             </div>
 
             <ul role='list' className='-mx-2 mt-2 space-y-1'>
-              {/* {sidebarOptions.map((option) => {
+              {sidebarOptions.map((option) => {
+                //@ts-ignore
                 const Icon = Icons[option.Icon]
                 return (
                   <li key={option.id}>
@@ -70,14 +85,14 @@ const Layout = async ({children}:LayoutProps) => {
                     </Link>
                   </li>
                 )
-              })} */}
+              })}
 
-              {/* <li>
+              <li>
                 <FriendRequestSidebarOptions
                   sessionId={session.user.id}
                   initialUnseenRequestCount={unseenRequestCount}
                 />
-              </li> */}
+              </li>
             </ul>
           </li>
 

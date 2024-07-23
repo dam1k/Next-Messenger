@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { chatHrefConstructor } from "@/helpers/chatHrefCounstructor";
+import { pusherClient } from "@/lib/pusher";
 
 interface SidebarChatListProps {
     friends: User[];
@@ -13,6 +14,20 @@ const SidebarChatList = ({friends, sessionId}: SidebarChatListProps) => {
     const router = useRouter();
     const pathname = usePathname();
     const [unseenMessages, setUnseenMessages] = useState<Message[]>([]);
+
+    function chatHandler() {
+
+    }
+
+    useEffect(() => {
+      pusherClient.subscribe(`user:${sessionId}:chats`);
+      pusherClient.bind("new_message", chatHandler);
+
+      return () => {
+        pusherClient.unsubscribe(`user:${sessionId}:chats`);
+        pusherClient.unbind("new_message", chatHandler);
+      }
+    }, []);
 
     useEffect(() => {
         if(pathname?.includes("/chat")) {
