@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { FC, useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { fetchRedis } from '@/helpers/redis'
+import { pusherClient } from '@/lib/pusher'
+import { toPusherKey } from '@/lib/utils'
 
 interface MessagesProps {
   initialMessages: Message[]
@@ -23,9 +25,17 @@ const Messages: FC<MessagesProps> = ({
   const [messages, setMessages] = useState<Message[]>(initialMessages)
 
   useEffect(() => {
-    // const messageHandler = (message: Message) => {
-    //   setMessages((prev) => [message, ...prev])
-    // }
+    const messageHandler = (message: Message) => {
+      setMessages((prev) => [message, ...prev])
+    }
+
+    pusherClient.subscribe(toPusherKey(`chat:${chatId}`));
+    pusherClient.bind("incoming-message", messageHandler);
+
+    return () => {
+      pusherClient.unsubscribe(toPusherKey(`chat:${chatId}`));
+      pusherClient.unbind("incoming-message", messageHandler);
+    }
   }, [chatId])
 
   const scrollDownRef = useRef<HTMLDivElement | null>(null)

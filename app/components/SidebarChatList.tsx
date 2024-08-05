@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { chatHrefConstructor } from "@/helpers/chatHrefCounstructor";
 import { pusherClient } from "@/lib/pusher";
+import { toPusherKey } from "@/lib/utils";
 
 interface SidebarChatListProps {
     friends: User[];
@@ -15,19 +16,43 @@ const SidebarChatList = ({friends, sessionId}: SidebarChatListProps) => {
     const pathname = usePathname();
     const [unseenMessages, setUnseenMessages] = useState<Message[]>([]);
 
-    function chatHandler() {
 
-    }
 
     useEffect(() => {
-      pusherClient.subscribe(`user:${sessionId}:chats`);
+      function chatHandler(messsage:any) {
+        if(pathname) {
+          const shouldNotify = pathname !== `/dashboard/chat/${chatHrefConstructor(messsage.senderId, sessionId)}`;
+
+          console.log(messsage);
+
+          setUnseenMessages((prev) => [...prev, messsage])
+
+          if(!shouldNotify) return 
+
+            // toast.custom((t) => (
+            //   <UnseenChatToast
+            //     t={t}
+            //     sessionId={sessionId}
+            //     senderId={message.senderId}
+            //     senderImg={message.senderImg}
+            //     senderMessage={message.text}
+            //     senderName={message.senderName}
+            //   />
+            // ))
+        }
+        // console.log(payload);
+      }
+
+      pusherClient.subscribe(toPusherKey(`user:${sessionId}:chats`));
       pusherClient.bind("new_message", chatHandler);
 
+      console.log(`user:${sessionId}:chats`);
+
       return () => {
-        pusherClient.unsubscribe(`user:${sessionId}:chats`);
+        pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:chats`));
         pusherClient.unbind("new_message", chatHandler);
       }
-    }, []);
+    }, [pathname, sessionId, router]);
 
     useEffect(() => {
         if(pathname?.includes("/chat")) {
@@ -38,6 +63,8 @@ const SidebarChatList = ({friends, sessionId}: SidebarChatListProps) => {
             })
         }
     }, [pathname]);
+
+
 
   return (
     <ul role="list" className='max-h-[25rem] overflow-y-auto -mx-2 space-y-1'>
